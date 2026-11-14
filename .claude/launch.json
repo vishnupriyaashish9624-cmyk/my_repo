@@ -1,0 +1,19 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "klenplus-dev",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev"],
+      "port": 3000,
+      "autoPort": true
+    },
+    {
+      "name": "klenplus-dev-lan",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev", "--", "-H", "0.0.0.0", "-p", "3005"],
+      "port": 3005,
+      "url": "http://192.168.0.123:3005"
+    }
+  ]
+}
