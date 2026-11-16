@@ -29,7 +29,7 @@ const LOOK: Record<string, { icon: UseKey; items: ItemKey[] }> = {
   facility: { icon: 'floor', items: ['garbage', 'maxi', 'mop'] },
   salon: { icon: 'washroom', items: ['glove-nitrile', 'hairnet', 'cat:hygiene'] },
 }
-const look = (slug?: string | null) =>
+export const look = (slug?: string | null) =>
   LOOK[slug ?? ''] ?? {
     icon: 'storeroom' as UseKey,
     items: ['stack', 'cat:bags', 'cat:chemicals'] as ItemKey[],
@@ -143,7 +143,8 @@ export default function Industries({
     >
       {/* Desktop: pinned split with curtain reveals */}
       <div className="hidden pin:motion-safe:block pin:motion-safe:h-[calc(var(--steps)*70svh)]">
-        <div className="sticky top-16 overflow-hidden px-10 pb-4 pt-8 2xl:px-14">
+        {/* Fills the viewport under the header, so no blank band shows below the pinned panel */}
+        <div className="sticky top-16 flex min-h-[calc(100svh-4rem)] flex-col justify-center overflow-hidden px-10 pb-4 pt-8 2xl:px-14">
           {/* Backdrop: dot grid, a leaf glow that follows the active row, a navy glow, a giant ghost number */}
           <div
             aria-hidden
@@ -294,7 +295,7 @@ export default function Industries({
                 ))}
               </AnimatePresence>
 
-              <div className="ind-stage relative aspect-[16/11] max-h-[70svh] w-full overflow-hidden rounded-[32px] bg-mist shadow-[0_40px_90px_-30px_rgba(28,42,92,0.45)] ring-1 ring-white/60">
+              <div className="ind-stage relative aspect-[4/3] max-h-[76svh] w-full overflow-hidden rounded-[32px] bg-mist shadow-[0_40px_90px_-30px_rgba(28,42,92,0.45)] ring-1 ring-white/60">
                 {items.map((it, i) => (
                   <div
                     key={it.id ?? it.slug}

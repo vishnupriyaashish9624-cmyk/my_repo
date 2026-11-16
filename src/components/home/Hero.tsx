@@ -1,7 +1,6 @@
 'use client'
 
 import { useRef } from 'react'
-import dynamic from 'next/dynamic'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { SplitText } from 'gsap/SplitText'
@@ -11,8 +10,6 @@ import { applyWindows, useFilmFrames } from '../film/useFilmFrames'
 import { Arrow } from '../Header'
 
 gsap.registerPlugin(ScrollTrigger, SplitText, useGSAP)
-
-const Bubbles = dynamic(() => import('./Bubbles'), { ssr: false })
 
 const FRAMES_LABEL = 'Klen Plus'
 
@@ -70,12 +67,14 @@ export default function Hero({
     <section id="top" ref={root} className="relative min-h-svh bg-paper motion-safe:h-[400svh]">
       <div className="top-0 h-svh min-h-[600px] overflow-hidden motion-safe:sticky">
         <canvas ref={canvas} className="absolute inset-0 h-full w-full" aria-hidden />
-        <Bubbles progress={progress} />
+        {/* Blue tint over the footage, deeper behind the headline on the right so the text stays readable */}
+        <div aria-hidden className="pointer-events-none absolute inset-0 bg-[rgb(70_120_200/0.38)] mix-blend-multiply" />
+        <div aria-hidden className="pointer-events-none absolute inset-0 bg-gradient-to-l from-[rgb(214_228_247/0.75)] via-[rgb(214_228_247/0.25)] via-45% to-transparent" />
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-paper via-paper/10 via-45% to-paper/40" />
 
         <div className="relative mx-auto h-full max-w-[1260px] px-5 md:px-10">
           <div data-at="0,0.24" className="absolute inset-x-5 bottom-[11%] md:inset-x-10">
-            <p className="hero-eyebrow label flex flex-wrap gap-x-3">{content.eyebrow}</p>
+            <p className="hero-eyebrow label flex w-fit flex-wrap gap-x-3 rounded-full border border-white/70 bg-white/85 px-4 py-2 !text-[13px] !font-semibold !tracking-[0.12em] !text-ink shadow-[0_8px_24px_-12px_rgba(28,42,92,0.45)] backdrop-blur md:!text-sm">{content.eyebrow}</p>
             <h1 className="hero-title mt-5 max-w-[11.5ch] text-[clamp(2.9rem,8.4vw,8rem)] font-bold leading-[0.9] tracking-[-0.04em]">
               {before}
               {after !== null && <em className="not-italic text-leaf">{content.highlight}</em>}
@@ -101,9 +100,14 @@ export default function Hero({
               // The hero footage builds the product group along the counter, so overlays use the wall above it.
               className={`invisible absolute inset-x-5 top-[17%] flex flex-col md:inset-x-10 ${o.align === 'end' ? 'items-end text-end' : 'items-start'}`}
             >
-              {o.eyebrow && <p className="label !text-leaf-deep">{o.eyebrow}</p>}
+              {o.eyebrow && <p className="label !text-leaf-deep [-webkit-text-stroke:3px_white] [paint-order:stroke_fill]">{o.eyebrow}</p>}
               <h2 className="mt-3 max-w-3xl text-4xl font-bold leading-[1] tracking-[-0.03em] md:text-7xl">{o.title}</h2>
-              {o.text && <p className="mt-4 max-w-lg text-lg text-slate">{o.text}</p>}
+              {o.text && (
+                // Off-white letters with a navy outline (stroke painted behind the fill so the letters stay full)
+                <p className="mt-4 max-w-lg text-lg font-normal text-[#f6f3ea] [-webkit-text-stroke:2px_var(--color-navy)] [paint-order:stroke_fill]">
+                  {o.text}
+                </p>
+              )}
             </div>
           ))}
 

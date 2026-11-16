@@ -30,6 +30,7 @@ export default function CategoryRail({
   id = 'aisles',
   label = 'All categories',
   title,
+  total,
 }: {
   categories: CategoryWithCount[]
   media: MediaIndex
@@ -39,6 +40,8 @@ export default function CategoryRail({
   label?: string
   /** Heading; defaults to "<n> aisles. One order." */
   title?: string
+  /** Number the counter runs up to; defaults to the number of cards. */
+  total?: number
 }) {
   const root = useRef<HTMLElement>(null)
   const heading = useRef<HTMLHeadingElement>(null)
@@ -48,6 +51,9 @@ export default function CategoryRail({
   const ghost = useRef<HTMLDivElement>(null)
   const [active, setActive] = useState(0)
   const n = categories.length
+  // Counter runs 01 → total with scroll progress (total can exceed the cards shown).
+  const steps = total ?? n
+  const [step, setStep] = useState(1)
 
   useGSAP(
     () => {
@@ -138,6 +144,7 @@ export default function CategoryRail({
             onUpdate: (self) => {
               skew(gsap.utils.clamp(-5, 5, self.getVelocity() / -400))
               if (bar.current) bar.current.style.transform = `scaleX(${self.progress})`
+              setStep(Math.round(self.progress * (steps - 1)) + 1)
             },
           },
         })
@@ -151,7 +158,7 @@ export default function CategoryRail({
         }
       })
     },
-    { scope: root, dependencies: [n] },
+    { scope: root, dependencies: [n, steps] },
   )
 
   const current = categories[active]
@@ -168,24 +175,24 @@ export default function CategoryRail({
       </div>
 
       <div className="relative flex flex-col justify-center gap-10 py-20 min-[900px]:min-h-svh min-[900px]:py-24">
-        <div className="mx-auto flex w-full max-w-[1260px] flex-wrap items-end justify-between gap-4 px-5 md:px-10">
+        <div className="mx-auto w-full max-w-[1840px] px-5 text-left md:px-10">
           <div>
             <p className="label !text-leaf-deep">{label}</p>
             <h2
               ref={heading}
-              className="rail-title mt-3 text-[clamp(2.4rem,5.4vw,5rem)] font-bold leading-[0.95] tracking-[-0.035em]"
+              className="rail-title mt-3 text-[clamp(2.2rem,4.4vw,4.6rem)] font-bold leading-[0.95] tracking-[-0.035em] min-[900px]:whitespace-nowrap"
             >
               {title ?? `${n} aisles. One order.`}
             </h2>
           </div>
-          <div className="flex w-full flex-col items-start gap-3 sm:w-72 sm:items-end">
+          <div className="mt-4 flex w-full max-w-sm flex-col items-start gap-3">
             <p className="font-mono text-sm text-slate">{totalActive} active products</p>
             <div className="hidden w-full items-center gap-3 font-mono text-xs tabular-nums text-slate min-[900px]:motion-safe:flex">
-              <span className="text-ink">{String(active + 1).padStart(2, '0')}</span>
+              <span className="text-ink">{String(step).padStart(2, '0')}</span>
               <div className="relative h-px flex-1 bg-line">
                 <div ref={bar} className="absolute inset-0 origin-left scale-x-0 bg-leaf" />
               </div>
-              <span>{String(n).padStart(2, '0')}</span>
+              <span>{String(steps).padStart(2, '0')}</span>
             </div>
           </div>
         </div>

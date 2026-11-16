@@ -3,8 +3,10 @@
 import { useEffect, useRef, useState } from 'react'
 import {
   AnimatePresence,
+  animate,
   motion,
-  useMotionValueEvent,
+  useInView,
+  useMotionValue,
   useScroll,
   useTransform,
   type MotionValue,
@@ -74,7 +76,7 @@ const BUILDINGS: Building[] = [
     left: '#bfe3b2',
     right: '#97cf85',
     icon: 'cafe',
-    name: 'Café',
+    name: 'Cafe',
   },
   {
     x: 760,
@@ -169,35 +171,17 @@ const WARM = 0.1
 const CUSTOMERS = 6
 const STEP = (1 - WARM - 0.04) / CUSTOMERS
 const stepStart = (k: number) => WARM + k * STEP
-const stepOf = (p: number) => Math.min(CUSTOMERS - 1, Math.max(0, Math.floor((p - WARM) / STEP)))
+/** Seconds the stop card stays on each customer. */
+const STOP_SECONDS = 2.8
 
 /** What each customer usually orders (shown in the stop card as their step plays). */
 const ORDERS: Record<string, string> = {
   Restaurant: 'Takeaway containers, foil and gloves',
-  Café: 'Hot cups, lids, straws and napkins',
+  Cafe: 'Hot cups, lids, straws and napkins',
   Hotel: 'Tissue, garbage bags and cleaning chemicals',
   Bakery: 'Paper bags, cling film and foil',
   'Office block': 'Toilet rolls, hand wash and mops',
   'Salon & clinic': 'Gloves, aprons, hair nets and wipes',
-}
-
-/** The active customer's route, drawn by scroll from the warehouse door to their front. */
-function RouteDraw({ b, p, k }: { b: Building; p: MotionValue<number>; k: number }) {
-  const pathLength = useTransform(p, [stepStart(k), stepStart(k) + STEP * 0.6], [0, 1], {
-    clamp: true,
-  })
-  return (
-    <motion.path
-      d={routePath(b)}
-      fill="none"
-      stroke="var(--color-leaf)"
-      strokeWidth="6"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeOpacity="0.85"
-      style={{ pathLength }}
-    />
-  )
 }
 
 function Block({ b, p, i }: { b: Building; p: MotionValue<number>; i: number }) {
@@ -304,24 +288,30 @@ export default function IsoCity({
   categories: number
 }) {
   const root = useRef<HTMLElement>(null)
-  // Wide screens pin the section (sticky screen inside a tall box) and scrub the story with scroll;
-  // smaller screens keep the plain scroll-in, so the city builds as it comes into view.
-  const [pinned, setPinned] = useState(false)
+  // The city builds as it scrolls into view (no pinning). On wide screens the stop card then
+  // tours the customers on a timer while the section is on screen.
+  const [wide, setWide] = useState(false)
   useEffect(() => {
     const mq = window.matchMedia('(min-width: 1024px)')
-    const sync = () => setPinned(mq.matches)
+    const sync = () => setWide(mq.matches)
     sync()
     mq.addEventListener('change', sync)
     return () => mq.removeEventListener('change', sync)
   }, [])
-  const pin = useScroll({ target: root, offset: ['start start', 'end end'] }).scrollYProgress
-  const flow = useScroll({ target: root, offset: ['start 85%', 'center 45%'] }).scrollYProgress
-  const scrollYProgress = pinned ? pin : flow
+  const scrollYProgress = useScroll({ target: root, offset: ['start 85%', 'center 45%'] }).scrollYProgress
+  const inView = useInView(root, { amount: 0.4 })
   const [step, setStep] = useState(0)
-  useMotionValueEvent(pin, 'change', (p) => pinned && setStep(stepOf(p)))
-  const stepBar = useTransform(pin, (p) =>
-    Math.min(1, Math.max(0, (p - stepStart(stepOf(p))) / STEP)),
-  )
+  const stepBar = useMotionValue(0)
+  useEffect(() => {
+    if (!wide || !inView) return
+    stepBar.set(0)
+    const run = animate(stepBar, 1, { duration: STOP_SECONDS, ease: 'linear' })
+    const t = setTimeout(() => setStep((s) => (s + 1) % CUSTOMERS), STOP_SECONDS * 1000)
+    return () => {
+      run.stop()
+      clearTimeout(t)
+    }
+  }, [wide, inView, step, stepBar])
   const stop = BUILDINGS[step + 1]
   const ground = pts(iso(0, 0), iso(1000, 0), iso(1000, 1000), iso(0, 1000))
   // Draw back-to-front so nearer blocks overlap farther ones.
@@ -332,20 +322,21 @@ export default function IsoCity({
       ref={root}
       id="city"
       aria-labelledby="city-title"
-      className="theme-light relative overflow-clip px-5 py-10 md:px-6 md:py-12 lg:h-[calc(7*80svh)] lg:py-0"
+      className="theme-light relative overflow-clip px-5 py-10 md:px-6 md:py-12 lg:py-14"
     >
-      <div className="relative mx-auto grid max-w-[1840px] items-center gap-6 lg:sticky lg:top-0 lg:h-svh lg:grid-cols-2 lg:gap-4 lg:pb-2 lg:pt-8">
+      <div className="relative mx-auto grid max-w-[1840px] items-center gap-6 lg:grid-cols-2 lg:gap-4">
         <ScrollDecor
           spots={[
-            { icon: 'cat:aluminium', className: 'start-[3%] top-[78%] w-20', speed: 1.1, spin: 12 },
-            { icon: 'zip-pouch', className: 'start-[17%] top-[84%] w-16', speed: 0.6, spin: -10 },
+            { icon: 'cat:aluminium', className: 'start-[2%] top-[100%] w-20', speed: 1.1, spin: 12 },
+            { icon: 'zip-pouch', className: 'start-[18%] top-[103%] w-16', speed: 0.6, spin: -10 },
             { icon: 'carry-bag', className: 'start-[30%] top-[6%] w-16', speed: 1.3, spin: 14 },
-            { icon: 'cat:cups', className: 'start-[30%] top-[76%] w-14', speed: 0.8, spin: -12 },
+            { icon: 'cat:cups', className: 'start-[34%] top-[99%] w-14', speed: 0.8, spin: -12 },
             { icon: 'rect-box', className: 'start-[40%] top-[10%] w-14', speed: 0.5, spin: 10 },
             { icon: 'cat:tissue', className: 'end-[3%] top-[4%] w-16', speed: 1, spin: -14 },
           ]}
         />
-        <div className="md:ps-2 lg:ps-2 xl:ps-4">
+        {/* Above the floating icons, so none of them cover the text or the stop card */}
+        <div className="relative z-10 md:ps-2 lg:ps-2 xl:ps-4">
           <motion.p
             className="label !text-leaf-deep"
             initial={{ opacity: 0, x: -16 }}
@@ -385,7 +376,7 @@ export default function IsoCity({
             ))}
           </dl>
 
-          {/* The stop the scroll is on (pinned layout only) */}
+          {/* The stop the tour is on (wide screens only) */}
           <div className="mt-6 hidden max-w-xl overflow-hidden rounded-2xl border border-line bg-white shadow-[0_20px_44px_-28px_rgba(28,42,92,0.45)] lg:block">
             <div className="flex items-center gap-4 p-4">
               <span className="grid size-14 shrink-0 place-items-center rounded-full bg-leaf-soft">
@@ -445,11 +436,11 @@ export default function IsoCity({
 
         <div
           // Wide screens: the city reaches back into the middle gap (15% of its column) and fills the
-          // rest, capped so it always fits the pinned screen's height.
+          // rest, capped so it fits on one screen.
           className="relative w-full lg:-ms-[15%] lg:w-[115%]"
           style={{
             aspectRatio: `${VB.w} / ${VB.h}`,
-            maxWidth: pinned ? `calc((100svh - 120px) * ${VB.w / VB.h})` : undefined,
+            maxWidth: wide ? `calc((100svh - 120px) * ${VB.w / VB.h})` : undefined,
           }}
         >
           <svg
@@ -559,11 +550,6 @@ export default function IsoCity({
                 />
               )
             })}
-            {/* Routes drawn by scroll, one customer per step (pinned layout) */}
-            {pinned &&
-              BUILDINGS.slice(1).map((b, k) => (
-                <RouteDraw key={`draw-${b.name}`} b={b} p={pin} k={k} />
-              ))}
             {/* Buildings, back to front */}
             {order.map(({ b, i }) => (
               <Block key={b.name} b={b} p={scrollYProgress} i={i} />
@@ -662,7 +648,7 @@ export default function IsoCity({
           </svg>
           {/* Roof icons and names */}
           {BUILDINGS.map((b, i) => (
-            <Label key={b.name} b={b} p={scrollYProgress} i={i} on={pinned && i === step + 1} />
+            <Label key={b.name} b={b} p={scrollYProgress} i={i} on={wide && i === step + 1} />
           ))}
         </div>
       </div>

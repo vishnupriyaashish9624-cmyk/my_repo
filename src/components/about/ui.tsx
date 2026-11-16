@@ -67,7 +67,7 @@ export function SectionHead({
       </motion.p>
       <motion.h2
         id={id}
-        className="mt-3 text-[clamp(2.2rem,4.4vw,4.4rem)] font-bold leading-[0.95] tracking-[-0.035em]"
+        className="mt-3 text-[clamp(2.2rem,4.2vw,4.2rem)] font-bold leading-[0.95] tracking-[-0.035em]"
         initial={{ opacity: 0, y: 28 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
@@ -78,7 +78,7 @@ export function SectionHead({
       </motion.h2>
       {children && (
         <motion.div
-          className={`mt-5 max-w-2xl text-lg leading-relaxed ${dark ? 'text-white/75' : 'text-slate'}`}
+          className={`mt-5 max-w-xl ${dark ? 'text-white/70' : 'text-slate'}`}
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}

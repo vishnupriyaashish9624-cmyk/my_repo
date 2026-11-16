@@ -57,16 +57,15 @@ export default function Header({
 
   return (
     <header className="pointer-events-none fixed inset-x-0 top-0 z-50">
-      {/* Full-width frosted glass bar: translucent white, heavy blur and saturation, a bright top edge and a soft shadow. */}
+      {/* Full-width navy bar with the brand section's faint white dot grid; a soft shadow once the page scrolls under it. */}
       <div
-        className={`glass-bar pointer-events-auto border-b transition-[background-color,box-shadow,border-color] duration-500 ${
-          scrolled
-            ? 'border-white/60 bg-white/55 shadow-[0_10px_40px_-18px_rgba(28,42,92,0.35)]'
-            : 'border-white/30 bg-white/30 shadow-none'
+        className={`pointer-events-auto border-b border-white/10 bg-ink bg-[radial-gradient(rgb(255_255_255/0.1)_1.4px,transparent_1.6px)] text-white transition-shadow duration-500 [background-size:24px_24px] ${
+          scrolled ? 'shadow-[0_10px_40px_-18px_rgba(0,0,0,0.55)]' : 'shadow-none'
         }`}
       >
         <div className="mx-auto flex max-w-[1840px] items-center gap-5 px-5 py-2.5 md:px-10">
-          <a href={home || '#top'} aria-label="Klen Plus home" className="shrink-0">
+          {/* The logo is navy, so it sits on a small white tab on the navy bar */}
+          <a href={home || '#top'} aria-label="Klen Plus home" className="shrink-0 rounded-lg bg-white px-2 py-1">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/klen-plus-logo.png"
@@ -78,10 +77,10 @@ export default function Header({
           </a>
           <nav
             aria-label="Main"
-            className="ms-auto hidden gap-7 text-[15px] font-medium text-slate md:flex"
+            className="ms-auto hidden gap-7 text-[15px] font-medium text-white/80 md:flex"
           >
             {LINKS.map((l) => (
-              <a key={l.href} href={hrefFor(l, home)} className="transition hover:text-ink">
+              <a key={l.href} href={hrefFor(l, home)} className="transition hover:text-white">
                 {l.label}
               </a>
             ))}
@@ -97,7 +96,7 @@ export default function Header({
             onClick={() => setOpen((o) => !o)}
             aria-expanded={open}
             aria-controls="mobile-menu"
-            className="ms-auto rounded-xl border border-line px-4 py-2.5 text-sm font-semibold md:hidden"
+            className="ms-auto rounded-xl border border-white/25 px-4 py-2.5 text-sm font-semibold md:hidden"
           >
             {open ? 'Close' : 'Menu'}
           </button>

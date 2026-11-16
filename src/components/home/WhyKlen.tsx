@@ -123,9 +123,18 @@ export default function WhyKlen() {
       <div className="relative mx-auto max-w-[1840px]">
         <div className="grid items-center gap-10 lg:grid-cols-[1.3fr_1fr]">
           <div className="max-w-3xl">
+            <motion.p
+              className="label !text-leaf-deep"
+              initial={{ opacity: 0, x: -16 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.7, ease: EASE }}
+            >
+              Why Choose Us
+            </motion.p>
             <motion.h2
               id="why-title"
-              className="text-[clamp(2.2rem,4.6vw,4.4rem)] font-bold leading-[0.95] tracking-[-0.035em]"
+              className="mt-3 text-[clamp(2.2rem,4.6vw,4.4rem)] font-bold leading-[0.95] tracking-[-0.035em]"
               initial={{ opacity: 0, y: 28 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}

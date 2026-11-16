@@ -405,15 +405,15 @@ export const HOME = {
     overlays: [
       { eyebrow: 'One supplier', title: 'Packaging and hygiene, on one delivery.', text: 'Order takeaway packaging and back-of-house cleaning supplies together.', align: 'end' as const, from: 0.28, until: 0.46 },
       // The intro sheet starts sliding over the hero at about 0.67, so overlays finish before then.
-      { eyebrow: 'By the carton', title: 'Priced the way you buy.', text: 'Every product lists its exact pack, e.g. 50 pcs × 20 pkt.', align: 'start' as const, from: 0.5, until: 0.66 },
+      { eyebrow: 'By the carton', title: 'Priced the way you buy.', align: 'start' as const, from: 0.5, until: 0.66 },
     ],
   },
   statement:
     "From the foil that wraps tonight's orders to the cleaner that mops the floor after close: one supplier, one delivery, priced by the carton.",
   facts: [
     { value: '{active}', unit: 'active SKUs', text: 'Every size, colour and pack variant listed separately, so you order exactly what you use.' },
-    { value: '10', unit: 'categories', text: 'Packaging, disposables, tissue, chemicals, tools and PPE, all from one account.' },
-    { value: '50×20', unit: 'pcs × pkt', text: 'Carton and bundle packs shown on every product, so your quote matches what arrives.' },
+    { value: '14', unit: 'categories', text: 'Packaging, disposables, tissue, chemicals, tools and PPE, all from one account.' },
+    { value: '3', unit: 'order checks', text: 'Before dispatch, we check the item, its packaging and the quantity against your order.' },
   ],
   chaptersTitle: 'Every aisle unpacks as you scroll.',
   chaptersText: 'Each category opens the way you use the product: a tissue unfolds, a foil roll runs out, a lid lifts and a squeegee clears the glass.',

@@ -68,12 +68,15 @@ const JOBS: {
   },
 ]
 
-/** Where the set's products float around the stage (they lift off it in 3D). */
+/**
+ * Where the set's products float around the stage (they lift off it in 3D). Kept off the top edge
+ * so they never cover the intro paragraph above the stage.
+ */
 const ORBIT = [
-  { className: '-top-8 end-[30%] w-20', z: 80, rotate: -8 },
+  { className: 'top-[10%] -end-4 w-20', z: 80, rotate: -8 },
   { className: '-bottom-8 end-[8%] w-20', z: 110, rotate: 6 },
-  { className: 'top-[38%] -end-8 w-16', z: 60, rotate: 10 },
-  { className: '-top-6 start-[34%] w-16', z: 90, rotate: -4 },
+  { className: 'top-[48%] -end-4 w-16', z: 60, rotate: 10 },
+  { className: '-bottom-6 end-[34%] w-16', z: 90, rotate: -4 },
 ]
 
 const HEAD = ['Our', 'best', 'products']

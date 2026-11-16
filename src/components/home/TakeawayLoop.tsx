@@ -53,8 +53,8 @@ const STEPS = LEFT.length + RIGHT.length
 
 /** Drifting product vectors in the empty space either side of the heading (wide screens only). */
 const FLOATS: { icon: ItemKey; className: string }[] = [
-  { icon: 'pet-glass', className: 'start-[6%] top-[4%] w-20' },
-  { icon: 'clear-bowl', className: 'start-[21%] top-[19%] w-16' },
+  { icon: 'pet-glass', className: 'end-[36%] top-[6%] w-20' },
+  { icon: 'clear-bowl', className: 'end-[44%] top-[22%] w-16' },
   { icon: 'paper-bag', className: 'end-[7%] top-[3%] w-20' },
   { icon: 'foil-roll', className: 'end-[21%] top-[20%] w-16' },
 ]
@@ -181,7 +181,7 @@ export default function TakeawayLoop() {
           ))}
         </div>
 
-        <header className="mx-auto max-w-4xl text-center">
+        <header className="max-w-4xl text-left">
           <motion.p
             className="label !text-leaf-deep"
             initial={{ opacity: 0, y: 12 }}

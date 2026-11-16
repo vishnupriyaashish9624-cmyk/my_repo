@@ -2,7 +2,6 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { getHomeData } from '@/lib/cms'
 import { getMediaIndex } from '@/lib/media'
-import { CATALOGUE } from '@/lib/catalogue'
 import { ABOUT_CHAPTERS, chapterId } from '@/lib/chapters'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
@@ -10,11 +9,12 @@ import { ChapterMark, ChapterNav } from '@/components/home/Chapters'
 import { ContactCards } from '@/components/home/Commitment'
 import Quote from '@/components/home/Quote'
 import Hero from '@/components/home/Hero'
-import AboutFigures from '@/components/about/AboutHero'
-import { Purpose, Range, Serve } from '@/components/about/Story'
+import { Purpose, Serve } from '@/components/about/Story'
 import { Cleaning, Materials, Packaging } from '@/components/about/Supplies'
 import { Cartons, Delivery, Quality, Returns } from '@/components/about/Ordering'
 import Contact from '@/components/about/Contact'
+import MissionVision from '@/components/about/Mission'
+import WhoWeAreBento from '@/components/about/WhoWeAreBento'
 
 export const revalidate = 60
 
@@ -59,16 +59,15 @@ const mark = (n: number, tone?: 'light' | 'dark') => (
 
 /** About us: twelve chapters, alternating dark and light, each with its own layout. */
 export default async function AboutPage() {
-  const { home, site, categories, allBrands } = await getHomeData()
+  const { home, site, categories } = await getHomeData()
   if (!home?.hero?.title) notFound()
   const media = getMediaIndex()
 
-  const totalActive = categories.reduce((sum, c) => sum + c.count, 0)
   const industries = home.industries ?? []
   const industryImages = Object.fromEntries(
     industries.map((i) => [i.slug, media[`industries/${i.slug}`]?.image]),
   )
-  const rangeHref = `#${chapterId(3, P)}`
+  const rangeHref = '/#catalogue'
 
   return (
     <>
@@ -76,20 +75,13 @@ export default async function AboutPage() {
       <main className="relative z-10">
         <span id={chapterId(1, P)} />
         <Hero content={HERO} primaryHref={rangeHref} />
-        <AboutFigures
-          figures={[
-            { v: CATALOGUE.length, l: 'categories in one catalogue' },
-            { v: totalActive, l: 'active products' },
-            { v: allBrands.length, l: 'brands stocked' },
-            { v: industries.length, l: 'kinds of business served' },
-          ]}
-        />
-        {mark(2)}
+        <WhoWeAreBento productsHref={rangeHref} />
+        <span id={chapterId(2, P)} className="block scroll-mt-20" />
         <Purpose />
-        {mark(3, 'dark')}
-        <Range />
-        {mark(4)}
+        <span id={chapterId(3, P)} className="block scroll-mt-20" />
         <Serve industries={industries} images={industryImages} />
+        <span id={chapterId(4, P)} className="block scroll-mt-20" />
+        <MissionVision />
         {mark(5, 'dark')}
         <Packaging />
         {mark(6)}

@@ -226,8 +226,8 @@ export default function DispatchChecks() {
             transition={{ duration: 1, ease: EASE }}
           >
             <img
-              src="/media/factory/containers.webp"
-              alt="Black takeaway containers moving along a production line"
+              src="/media/factory/quality-checks.webp"
+              alt="Black takeaway containers being thermoformed on a production line"
               className="kenburns h-full w-full object-cover"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-ink/70 via-transparent to-transparent" />

@@ -35,6 +35,13 @@ const road = (x: number, y: number) => {
   return `M${HUB.x} ${HUB.y} Q${mx} ${my} ${x} ${y}`
 }
 
+/** Hub → stop → hub along the same curve, for the travelling "+" marks. */
+const roundTrip = (x: number, y: number) => {
+  const mx = (HUB.x + x) / 2 + (y - HUB.y) * 0.25
+  const my = (HUB.y + y) / 2 - (x - HUB.x) * 0.12
+  return `${road(x, y)} Q${mx} ${my} ${HUB.x} ${HUB.y}`
+}
+
 const STEPS = [
   {
     n: '01',
@@ -55,7 +62,7 @@ const STEPS = [
 
 /**
  * "From our shelves to your back door": a stylised city map. Roads curve out from the warehouse to
- * six things every account gets, little vans drive them on a loop, the stops pulse, and a dotted
+ * six things every account gets, Klen Plus "+" marks travel them on a loop, the stops pulse, and a dotted
  * city grid sits underneath. Three steps sit beside the map.
  */
 export default function DeliveryMap() {
@@ -202,28 +209,29 @@ export default function DeliveryMap() {
                 />
               </g>
             ))}
-            {/* Vans driving out and back on a loop */}
-            {stops.map((s, i) => (
-              <g key={`van-${i}`}>
-                <g>
-                  <rect x="-13" y="-8" width="26" height="16" rx="4" fill="#fff" />
-                  <rect x="5" y="-6" width="7" height="6" rx="1.5" fill="#9cc1f0" />
-                  <rect x="-11" y="-3" width="12" height="3" rx="1" fill="var(--color-leaf)" />
-                  <circle cx="-7" cy="8" r="3" fill="#0f1838" />
-                  <circle cx="7" cy="8" r="3" fill="#0f1838" />
-                  <animateMotion
-                    dur={`${6 + (i % 3)}s`}
-                    begin={`${-i * 1.3}s`}
-                    repeatCount="indefinite"
-                    rotate="auto"
-                    keyPoints="0;1;1;0;0"
-                    keyTimes="0;0.45;0.5;0.95;1"
-                    calcMode="linear"
-                    path={road(s.x, s.y)}
-                  />
+            {/* Klen Plus "+" marks travelling out and back on a loop (in place of vans) */}
+            {stops.map((s, i) => {
+              const dur = `${6 + (i % 3)}s`
+              const begin = `${-i * 1.3}s`
+              return (
+                <g key={`plus-${i}`}>
+                  <g>
+                    <circle r="14" fill="#fff" />
+                    <circle r="14" fill="none" stroke="var(--color-leaf)" strokeOpacity="0.5" strokeWidth="1.5" />
+                    <image href="/media/brand/plus-mark.png" x="-10" y="-10" width="20" height="20" />
+                    <animateMotion
+                      dur={dur}
+                      begin={begin}
+                      repeatCount="indefinite"
+                      keyPoints="0;0.5;0.5;1;1"
+                      keyTimes="0;0.45;0.5;0.95;1"
+                      calcMode="linear"
+                      path={roundTrip(s.x, s.y)}
+                    />
+                  </g>
                 </g>
-              </g>
-            ))}
+              )
+            })}
             {/* Drop-off pulses */}
             {stops.map((s, i) => (
               <circle

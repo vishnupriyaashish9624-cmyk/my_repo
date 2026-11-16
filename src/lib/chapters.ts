@@ -20,8 +20,8 @@ export const CHAPTERS: Chapter[] = [
 export const ABOUT_CHAPTERS: Chapter[] = [
   { n: 1, title: 'About Klen Plus', icon: 'cat:tissue' },
   { n: 2, title: 'Our purpose', icon: 'dome-lid' },
-  { n: 3, title: 'Our product range', icon: 'stack' },
-  { n: 4, title: 'Who we serve', icon: 'cat:cups' },
+  { n: 3, title: 'Who we serve', icon: 'cat:cups' },
+  { n: 4, title: 'Our mission & vision', icon: 'product-box' },
   { n: 5, title: 'Food packaging & serving', icon: 'cat:takeaway' },
   { n: 6, title: 'Cleaning & hygiene', icon: 'disinfect' },
   { n: 7, title: 'Materials & product selection', icon: 'clear-bowl' },

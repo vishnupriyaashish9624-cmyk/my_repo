@@ -79,3 +79,96 @@ export async function sendContactEnquiry(_prev: ContactState, form: FormData): P
     return { ok: false, message: "Your message didn't go through. Please try again, or message us on WhatsApp." }
   }
 }
+
+export type CategoryQuoteState =
+  | {
+      ok: boolean
+      message: string
+      errors?: Partial<Record<'name' | 'company' | 'email' | 'phone' | 'location' | 'products' | 'attachment', string>>
+      /** What was typed, so the form can refill itself after a failed attempt. */
+      values?: Record<string, string>
+    }
+  | null
+
+const MAX_ATTACHMENT = 5 * 1024 * 1024
+
+/**
+ * Saves a category page's quote request (e.g. tissue & hygiene) as an Enquiry. The optional photo of a
+ * pack label or dispenser is stored in Media and linked from the enquiry text.
+ */
+export async function sendCategoryQuote(_prev: CategoryQuoteState, form: FormData): Promise<CategoryQuoteState> {
+  const get = (k: string) => String(form.get(k) ?? '').trim()
+  const category = get('category').slice(0, 80) || 'Category'
+  const name = get('name')
+  const company = get('company')
+  const email = get('email')
+  const phone = get('phone')
+  const location = get('location')
+  const products = form.getAll('products').map(String).filter(Boolean)
+  const quantity = get('quantity')
+  const requirements = get('requirements')
+  const file = form.get('attachment')
+  const upload = file instanceof File && file.size > 0 ? file : null
+
+  const errors: NonNullable<CategoryQuoteState>['errors'] = {}
+  if (!name) errors.name = 'Add your name.'
+  if (!company) errors.company = 'Add your business or organisation.'
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) errors.email = 'Add a valid email address.'
+  if (phone.replace(/\D/g, '').length < 7) errors.phone = 'Add a phone number with at least 7 digits.'
+  if (!location) errors.location = 'Add the emirate and area for delivery.'
+  if (!products.length) errors.products = 'Choose at least one product.'
+  if (upload && !upload.type.startsWith('image/')) errors.attachment = 'Attach a photo (JPG, PNG or WebP).'
+  else if (upload && upload.size > MAX_ATTACHMENT) errors.attachment = 'Keep the photo under 5 MB.'
+  if (Object.keys(errors).length) {
+    return { ok: false, message: 'Check the highlighted fields and try again.', errors, values: { name, company, email, phone, location, quantity, requirements } }
+  }
+
+  try {
+    const payload = await cms()
+    let photo = ''
+    if (upload) {
+      const doc = await payload.create({
+        collection: 'media',
+        data: { alt: `${category} enquiry from ${company}`.slice(0, 200) },
+        file: {
+          data: Buffer.from(await upload.arrayBuffer()),
+          mimetype: upload.type,
+          name: upload.name || 'attachment.jpg',
+          size: upload.size,
+        },
+        overrideAccess: true,
+      })
+      photo = doc.url ?? `media #${doc.id}`
+    }
+    const list = [
+      `${category} quote`,
+      `Products: ${products.join(', ')}`,
+      quantity && `Estimated quantity: ${quantity}`,
+      `Delivery: ${location}`,
+      requirements && `Requirements: ${requirements}`,
+      photo && `Attachment: ${photo}`,
+    ]
+      .filter(Boolean)
+      .join('\n')
+    await payload.create({
+      collection: 'enquiries',
+      data: {
+        business: company.slice(0, 200),
+        name: name.slice(0, 200),
+        email: email.slice(0, 200),
+        phone: phone.slice(0, 40),
+        enquiryType: 'quote',
+        source: 'quote',
+        list: list.slice(0, 5000),
+      },
+      overrideAccess: true,
+    })
+    return {
+      ok: true,
+      message:
+        'Thank you for your enquiry. Our team will review your list and contact you to confirm the product details, quantities and pricing.',
+    }
+  } catch {
+    return { ok: false, message: "Your request didn't go through. Please try again, or message us on WhatsApp." }
+  }
+}

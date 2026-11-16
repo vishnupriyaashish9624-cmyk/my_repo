@@ -8,13 +8,12 @@ import Intro from '@/components/home/Intro'
 import CategoryRail from '@/components/home/CategoryRail'
 import BrandMarquee from '@/components/home/BrandMarquee'
 import Industries from '@/components/home/Industries'
-import OrderSteps from '@/components/home/OrderSteps'
+import RestockSteps from '@/components/home/RestockSteps'
 import Quote from '@/components/home/Quote'
 import TravellingItems from '@/components/home/TravellingItems'
 import CategoryIndex from '@/components/home/CategoryIndex'
 import WhyKlen from '@/components/home/WhyKlen'
 import DeliveryMap from '@/components/home/DeliveryMap'
-import BackRoomDay from '@/components/home/BackRoomDay'
 import TakeawayLoop from '@/components/home/TakeawayLoop'
 import BestProducts from '@/components/home/BestProducts'
 import DispatchChecks from '@/components/home/DispatchChecks'
@@ -94,10 +93,18 @@ export default async function HomePage() {
   const factoryMedia = {
     ...media,
     ...Object.fromEntries(
-      ['tissue', 'aluminium', 'containers', 'cups'].map((slug) => [
-        `categories/${slug}`,
-        { image: `/media/factory/${slug}.webp` },
-      ]),
+      [
+        'tissue',
+        'aluminium',
+        'containers',
+        'cups',
+        'bags',
+        'wraps',
+        'chemicals',
+        'tools',
+        'ppe',
+        'foam',
+      ].map((slug) => [`categories/${slug}`, { image: `/media/factory/${slug}.webp` }]),
     ),
   }
 
@@ -108,13 +115,32 @@ export default async function HomePage() {
       <main className="relative z-10">
         {/* 01 · Welcome */}
         <span id={chapterId(1)} />
-        <Hero content={home.hero} />
+        <Hero
+          content={{
+            ...home.hero,
+            // The "exact pack" line was dropped; strip it from older CMS content too.
+            overlays: home.hero.overlays?.map((o) =>
+              o.text?.startsWith('Every product lists its exact pack') ? { ...o, text: null } : o,
+            ),
+          }}
+        />
         <Intro
           statement={home.statement}
-          facts={(home.facts ?? []).map((f) => ({
-            ...f,
-            value: f.value.replace('{active}', String(totalActive)),
-          }))}
+          facts={(home.facts ?? []).map((f) =>
+            // The pack-size fact was replaced by the order checks; swap it in older CMS content too.
+            f.unit === 'pcs × pkt'
+              ? {
+                  ...f,
+                  value: '3',
+                  unit: 'order checks',
+                  text: 'Before dispatch, we check the item, its packaging and the quantity against your order.',
+                }
+              : {
+                  ...f,
+                  value:
+                    f.unit === 'categories' ? '14' : f.value.replace('{active}', String(totalActive)),
+                },
+          )}
           texture={media['textures/tissue']?.image}
           chips={{
             foil: media['categories/aluminium']?.image,
@@ -126,7 +152,14 @@ export default async function HomePage() {
         {/* Product range (part of 01, no header of its own) */}
         <CategoryIndex categories={categories} images={catImages} />
         <VectorRibbon />
-        <CategoryRail categories={categories} media={media} totalActive={totalActive} />
+        <CategoryRail
+          label="Our manufacturing process"
+          title="How everyday essentials take shape."
+          categories={categories}
+          media={factoryMedia}
+          totalActive={totalActive}
+          total={14}
+        />
 
         {/* About Klen+ (part of 01, no header of its own) */}
         <AboutKlen
@@ -140,18 +173,10 @@ export default async function HomePage() {
         {/* 02 · Why choose Klen+ */}
         <span id={chapterId(2)} />
         <WhyKlen />
-        <CategoryRail
-          id="aisles-why"
-          label="Shop by category"
-          title="Every essential, one supplier."
-          categories={categories}
-          media={factoryMedia}
-          totalActive={totalActive}
-        />
 
         {/* 03 · What we provide */}
         <span id={chapterId(3)} />
-        <BackRoomDay />
+        <RestockSteps />
         <TakeawayLoop />
         <DispatchChecks />
 
@@ -163,10 +188,6 @@ export default async function HomePage() {
 
         {/* Care in every delivery (part of 04, no header of its own) */}
         <DeliveryMap />
-
-        {/* 05 · Our approach to quality checks */}
-        <span id={chapterId(5)} />
-        <QualityChecks />
 
         {/* 06 · Your trusted supply partner */}
         <span id={chapterId(6)} />
@@ -183,11 +204,14 @@ export default async function HomePage() {
           })}
           whatsapp={site.whatsapp}
         />
-        <OrderSteps title={home.stepsTitle} steps={home.steps ?? []} />
 
         {/* 08 · Request a quote / contact */}
-        <ChapterMark n={8} />
+        <span id={chapterId(8)} />
         <Quote content={home.quote} site={site} />
+
+        {/* 05 · Our approach to quality checks (shown after the quote form) */}
+        <span id={chapterId(5)} />
+        <QualityChecks />
         <ContactCards site={site} />
 
         {/* 09 · Our commitment to your business */}

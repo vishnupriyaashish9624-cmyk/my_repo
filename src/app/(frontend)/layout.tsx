@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from 'next'
 import { Bricolage_Grotesque, Figtree, IBM_Plex_Mono } from 'next/font/google'
 import SmoothScroll from '@/components/SmoothScroll'
+import WhatsAppChat from '@/components/WhatsAppChat'
+import { cms } from '@/lib/cms'
 import './globals.css'
 
 const bricolage = Bricolage_Grotesque({ subsets: ['latin'], variable: '--font-bricolage', display: 'swap' })
@@ -27,11 +29,23 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = { themeColor: '#f5f7fa', width: 'device-width', initialScale: 1 }
 
-export default function FrontendLayout({ children }: { children: React.ReactNode }) {
+/** WhatsApp number from the Site settings in the CMS; the chat button hides if it is empty. */
+async function whatsappNumber() {
+  try {
+    const site = await (await cms()).findGlobal({ slug: 'site' })
+    return site?.whatsapp ?? null
+  } catch {
+    return null
+  }
+}
+
+export default async function FrontendLayout({ children }: { children: React.ReactNode }) {
+  const whatsapp = await whatsappNumber()
   return (
     <html lang="en" className={`${bricolage.variable} ${figtree.variable} ${plexMono.variable}`}>
       <body>
         <SmoothScroll>{children}</SmoothScroll>
+        <WhatsAppChat number={whatsapp} />
       </body>
     </html>
   )

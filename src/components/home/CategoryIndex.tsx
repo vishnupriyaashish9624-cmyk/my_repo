@@ -238,12 +238,12 @@ export default function CategoryIndex({
                 </div>
               </div>
             </header>
-            {/* Showcase: the active category's still life, crossfading with a slow zoom */}
-            <div className="cat-showcase relative mt-4 aspect-[3/2] w-full short:hidden">
+            {/* Showcase: the active category's photo in a rounded frame, crossfading with a slow zoom */}
+            <div className="cat-showcase relative mt-4 aspect-[3/2] w-full overflow-hidden rounded-[24px] shadow-[0_24px_50px_-28px_rgba(0,0,0,0.7)] ring-1 ring-white/10 short:hidden">
               <AnimatePresence initial={false}>
                 <motion.div
                   key={entry.key}
-                  className="blend-edges absolute inset-0 bg-[#f6efdc]"
+                  className="absolute inset-0 bg-[#f6efdc]"
                   initial={{ opacity: 0, scale: 1.08 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0 }}
@@ -266,9 +266,14 @@ export default function CategoryIndex({
                   )}
                 </motion.div>
               </AnimatePresence>
+              {/* Blend: the photo's edges melt into the navy panel instead of stopping at the card's edge */}
               <div
                 aria-hidden
-                className="pointer-events-none absolute inset-x-0 bottom-0 h-3/5 bg-gradient-to-t from-ink via-ink/60 to-transparent"
+                className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_75%_70%_at_50%_45%,transparent_50%,rgb(28_42_92/0.35)_78%,rgb(28_42_92/0.75)_100%)]"
+              />
+              <div
+                aria-hidden
+                className="pointer-events-none absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-ink/80 via-ink/30 to-transparent"
               />
               <span className="absolute start-3 top-3 rounded-full bg-white/80 px-2.5 py-1 font-mono text-[11px] tabular-nums text-ink backdrop-blur">
                 {pad(active + 1)} / {pad(N)}
